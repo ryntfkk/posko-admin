@@ -3,7 +3,7 @@ import Login from './pages/auth/Login';
 import { useAuthStore } from './store/authStore';
 
 // Import Pages
-import Dashboard from './pages/dashboard/Dashboard'; // <--- INI PENTING: Import Dashboard Baru
+import Dashboard from './pages/dashboard/Dashboard';
 import ProviderList from './pages/providers/ProviderList';
 import ProviderDetail from './pages/providers/ProviderDetail';
 import ServiceList from './pages/services/ServiceList';
@@ -11,6 +11,7 @@ import OrderList from './pages/orders/OrderList';
 import OrderDetail from './pages/orders/OrderDetail';
 import VoucherList from './pages/vouchers/VoucherList';
 import FinancePage from './pages/finance/FinancePage';
+import UserList from './pages/users/UserList'; // <--- [BARU] Import UserList
 
 // Komponen Proteksi Route
 const ProtectedRoute = ({ children }) => {
@@ -21,9 +22,6 @@ const ProtectedRoute = ({ children }) => {
   }
   return children;
 };
-
-// HAPUS KODE INI (Variable Dashboard Lama):
-// const Dashboard = () => ( ... ); 
 
 function App() {
   return (
@@ -47,6 +45,13 @@ function App() {
         <Route path="/providers/:id" element={
           <ProtectedRoute>
             <ProviderDetail />
+          </ProtectedRoute>
+        } />
+
+        {/* Module: Pengguna (User) [BARU] */}
+        <Route path="/users" element={
+          <ProtectedRoute>
+            <UserList />
           </ProtectedRoute>
         } />
 
