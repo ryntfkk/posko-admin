@@ -45,11 +45,11 @@ export default function Dashboard() {
   }, []);
 
   const Card = ({ title, value, icon: Icon, color, link, subtext }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-white-100 relative overflow-hidden">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
-          <h3 className="text-2xl font-bold text-gray-800">{loading ? '...' : value}</h3>
+          <p className="text-sm font-medium text-white-500 mb-1">{title}</p>
+          <h3 className="text-2xl font-bold text-white-800">{loading ? '...' : value}</h3>
           {subtext && <p className="text-xs text-orange-600 mt-1 font-medium">{subtext}</p>}
         </div>
         <div className={`p-3 rounded-lg ${color} text-white`}>
@@ -57,7 +57,7 @@ export default function Dashboard() {
         </div>
       </div>
       {link && (
-        <Link to={link} className="absolute bottom-0 left-0 w-full bg-gray-50 px-6 py-2 text-xs font-medium text-gray-600 hover:text-primary flex items-center justify-between border-t border-gray-100 transition-colors">
+        <Link to={link} className="absolute bottom-0 left-0 w-full bg-white-50 px-6 py-2 text-xs font-medium text-white-600 hover:text-primary flex items-center justify-between border-t border-white-100 transition-colors">
           Lihat Detail <ArrowUpRight size={14} />
         </Link>
       )}
@@ -67,8 +67,8 @@ export default function Dashboard() {
   return (
     <AdminLayout>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-        <p className="text-gray-500">Ringkasan aktivitas platform Posko.</p>
+        <h1 className="text-2xl font-bold text-white-800">Dashboard Overview</h1>
+        <p className="text-white-500">Ringkasan aktivitas platform Posko.</p>
       </div>
 
       {/* Stats Grid */}
@@ -111,7 +111,7 @@ export default function Dashboard() {
           Anda memiliki kontrol penuh atas aplikasi. Pastikan untuk memeriksa Mitra yang menunggu verifikasi dan memantau pesanan yang sedang berjalan.
         </p>
         <div className="flex gap-4">
-          <Link to="/providers" className="bg-white text-primary px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+          <Link to="/providers" className="bg-white text-primary px-4 py-2 rounded-lg font-semibold hover:bg-white-100 transition">
             Verifikasi Mitra
           </Link>
           <Link to="/services" className="bg-white/10 text-white border border-white/20 px-4 py-2 rounded-lg font-semibold hover:bg-white/20 transition">

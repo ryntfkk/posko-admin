@@ -26,7 +26,7 @@ export default function Sidebar() {
 
   return (
     <div className="w-64 bg-primary text-white h-screen flex flex-col fixed left-0 top-0">
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-6 border-b border-white-700">
         <h1 className="text-2xl font-bold text-accent">Posko Admin</h1>
       </div>
 
@@ -43,7 +43,7 @@ export default function Sidebar() {
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                 isActive 
                   ? "bg-accent text-white shadow-lg" 
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  : "text-white-400 hover:bg-white-800 hover:text-white"
               )}
             >
               <Icon size={20} />
@@ -53,7 +53,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-4 border-t border-white-700">
         <button
           onClick={logout}
           className="flex items-center gap-3 px-4 py-3 w-full text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"

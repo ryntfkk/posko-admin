@@ -6,7 +6,7 @@ export default function AdminLayout({ children }) {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-white-50 flex">
       {/* Sidebar */}
       <Sidebar />
 
@@ -15,7 +15,7 @@ export default function AdminLayout({ children }) {
         {/* Header */}
         <header className="h-16 bg-white shadow-sm flex items-center justify-between px-8 sticky top-0 z-10">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold text-white-800">
               Halo, {user?.fullName || 'Admin'}
             </h2>
           </div>
@@ -23,7 +23,7 @@ export default function AdminLayout({ children }) {
             <img 
               src={user?.profilePictureUrl || "https://via.placeholder.com/40"} 
               alt="Profile" 
-              className="w-10 h-10 rounded-full border border-gray-200 object-cover"
+              className="w-10 h-10 rounded-full border border-white-200 object-cover"
             />
           </div>
         </header>
