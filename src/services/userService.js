@@ -14,5 +14,11 @@ export const userService = {
     // Endpoint sesuai backend: /api/auth/users/:id/status
     const response = await api.patch(`/auth/users/${id}/status`, { status: newStatus });
     return response.data;
+  },
+
+  // Update Data User (Admin)
+  update: async (id, data) => {
+    const response = await api.put(`/auth/users/${id}`, data);
+    return response.data;
   }
 };

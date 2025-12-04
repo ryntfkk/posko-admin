@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { userService } from '../../services/userService';
-import { Search, Ban, CheckCircle, User, RefreshCw } from 'lucide-react';
+import { Search, Ban, CheckCircle, User, Edit, X } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -14,6 +14,16 @@ export default function UserList() {
     limit: 10,
     total: 0,
     totalPages: 1
+  });
+
+  // Edit Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    bio: ''
   });
 
   // Debounce search agar tidak spam request
@@ -62,6 +72,30 @@ export default function UserList() {
       fetchUsers(pagination.page); // Refresh data
     } catch (error) {
       toast.error('Gagal mengubah status');
+    }
+  };
+
+  // --- EDIT HANDLERS ---
+  const openEditModal = (user) => {
+    setEditingUser(user);
+    setEditForm({
+      fullName: user.fullName || '',
+      email: user.email || '',
+      phoneNumber: user.phoneNumber || '',
+      bio: user.bio || ''
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    try {
+      await userService.update(editingUser._id, editForm);
+      toast.success('Data pengguna diperbarui');
+      setIsEditModalOpen(false);
+      fetchUsers(pagination.page);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Gagal update user');
     }
   };
 
@@ -149,7 +183,14 @@ export default function UserList() {
                         day: 'numeric', month: 'short', year: 'numeric'
                       })}
                     </td>
-                    <td className="p-4 text-right">
+                    <td className="p-4 text-right flex justify-end gap-2">
+                      <button
+                        onClick={() => openEditModal(user)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit User"
+                      >
+                        <Edit size={16} />
+                      </button>
                       <button
                         onClick={() => handleToggleStatus(user)}
                         className={clsx(
@@ -192,6 +233,80 @@ export default function UserList() {
           </div>
         </div>
       </div>
+
+      {/* EDIT MODAL */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+              <h3 className="font-bold text-gray-800">Edit Data Pengguna</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateUser} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                <input 
+                  type="text" 
+                  required
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-primary focus:border-primary"
+                  value={editForm.fullName}
+                  onChange={e => setEditForm({...editForm, fullName: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input 
+                  type="email" 
+                  required
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-primary focus:border-primary"
+                  value={editForm.email}
+                  onChange={e => setEditForm({...editForm, email: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                <input 
+                  type="text" 
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-primary focus:border-primary"
+                  value={editForm.phoneNumber}
+                  onChange={e => setEditForm({...editForm, phoneNumber: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                <textarea 
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-primary focus:border-primary"
+                  rows="3"
+                  value={editForm.bio}
+                  onChange={e => setEditForm({...editForm, bio: e.target.value})}
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                  Batal
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700"
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
-}   
+}
