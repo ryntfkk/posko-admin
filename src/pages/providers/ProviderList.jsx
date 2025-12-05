@@ -26,7 +26,17 @@ export default function ProviderList() {
     }
   };
 
-  // Filter Client-side (karena endpoint backend listProviders belum support filter by status verification secara native di query param, kecuali kita tambahkan logic filter di backend juga)
+  // Helper untuk mendapatkan URL gambar yang aman
+  const getImageUrl = (path) => {
+    if (!path) return "https://via.placeholder.com/40";
+    if (path.startsWith('http')) return path;
+    
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const baseUrl = apiUrl.replace('/api', '');
+    return `${baseUrl}${path}`;
+  };
+
+  // Filter Client-side
   const filteredProviders = providers.filter(p => {
     if (filter === 'all') return true;
     return p.verificationStatus === filter;
@@ -96,9 +106,9 @@ export default function ProviderList() {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img 
-                        src={provider.userId.profilePictureUrl || "https://via.placeholder.com/40"} 
+                        src={getImageUrl(provider.userId.profilePictureUrl)} 
                         alt="" 
-                        className="w-10 h-10 rounded-full object-cover bg-gray-200"
+                        className="w-10 h-10 rounded-full object-cover bg-gray-200 border"
                       />
                       <div>
                         <p className="font-medium text-gray-900">{provider.userId.fullName}</p>

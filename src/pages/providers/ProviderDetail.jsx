@@ -32,7 +32,6 @@ export default function ProviderDetail() {
     
     setProcessing(true);
     try {
-      // Jika reject, bisa ditambahkan prompt untuk alasan
       let reason = '';
       if (status === 'rejected') {
         reason = window.prompt("Masukkan alasan penolakan:") || 'Dokumen tidak valid';
@@ -48,30 +47,45 @@ export default function ProviderDetail() {
     }
   };
 
+  // Helper aman untuk URL gambar
+  const getImageUrl = (path) => {
+    if (!path) return "https://via.placeholder.com/100?text=No+Image";
+    if (path.startsWith('http')) return path;
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    return `${apiUrl.replace('/api', '')}${path}`;
+  };
+
   if (loading) return <AdminLayout><div className="p-8">Loading...</div></AdminLayout>;
   if (!provider) return <AdminLayout><div className="p-8">Data tidak ditemukan</div></AdminLayout>;
 
-  // Helper untuk menampilkan gambar dokumen
-  const DocumentCard = ({ title, url }) => (
-    <div className="border border-gray-200 rounded-lg p-4 bg-white">
-      <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
-        <FileText size={16} /> {title}
-      </h3>
-      {url ? (
-        <a href={import.meta.env.VITE_API_URL.replace('/api', '') + url} target="_blank" rel="noreferrer">
-          <img 
-            src={import.meta.env.VITE_API_URL.replace('/api', '') + url} 
-            alt={title} 
-            className="w-full h-48 object-cover rounded-md hover:opacity-90 transition-opacity cursor-pointer border"
-          />
-        </a>
-      ) : (
-        <div className="h-48 bg-gray-50 flex items-center justify-center text-gray-400 text-sm rounded-md border border-dashed">
-          Tidak ada dokumen
-        </div>
-      )}
-    </div>
-  );
+  // Safety check untuk status (Mencegah Crash .toUpperCase())
+  const status = provider.verificationStatus || 'pending';
+
+  // Helper component untuk dokumen
+  const DocumentCard = ({ title, url }) => {
+    const fullUrl = url ? getImageUrl(url) : null;
+    return (
+      <div className="border border-gray-200 rounded-lg p-4 bg-white">
+        <h3 className="text-sm font-semibold text-gray-500 mb-3 flex items-center gap-2">
+          <FileText size={16} /> {title}
+        </h3>
+        {fullUrl ? (
+          <a href={fullUrl} target="_blank" rel="noreferrer">
+            <img 
+              src={fullUrl} 
+              alt={title} 
+              className="w-full h-48 object-cover rounded-md hover:opacity-90 transition-opacity cursor-pointer border bg-gray-50"
+              onError={(e) => { e.target.src = "https://via.placeholder.com/300?text=Error+Loading"; }}
+            />
+          </a>
+        ) : (
+          <div className="h-48 bg-gray-50 flex items-center justify-center text-gray-400 text-sm rounded-md border border-dashed">
+            Tidak ada dokumen
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <AdminLayout>
@@ -87,28 +101,29 @@ export default function ProviderDetail() {
           <div className="flex justify-between items-start">
             <div className="flex gap-4">
               <img 
-                src={provider.userId.profilePictureUrl || "https://via.placeholder.com/100"} 
-                className="w-20 h-20 rounded-full object-cover bg-gray-100" 
+                src={getImageUrl(provider.userId?.profilePictureUrl)} 
+                className="w-20 h-20 rounded-full object-cover bg-gray-100 border"
+                alt="Profile" 
               />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{provider.userId.fullName}</h1>
-                <p className="text-gray-500">{provider.userId.email}</p>
+                <h1 className="text-2xl font-bold text-gray-900">{provider.userId?.fullName || 'Nama Tidak Tersedia'}</h1>
+                <p className="text-gray-500">{provider.userId?.email || '-'}</p>
                 <div className="mt-2 flex gap-2">
                   <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
                     {provider.details?.experienceYears || 0} Tahun Pengalaman
                   </span>
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    provider.verificationStatus === 'verified' ? 'bg-green-100 text-green-700' : 
-                    provider.verificationStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                    status === 'verified' ? 'bg-green-100 text-green-700' : 
+                    status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
                   }`}>
-                    {provider.verificationStatus.toUpperCase()}
+                    {status.toUpperCase()}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons (Hanya muncul jika Pending) */}
-            {provider.verificationStatus === 'pending' && (
+            {/* Action Buttons */}
+            {status === 'pending' && (
               <div className="flex gap-3">
                 <button
                   onClick={() => handleVerify('rejected')}
@@ -129,13 +144,13 @@ export default function ProviderDetail() {
           </div>
         </div>
 
-        {/* Documents Grid */}
+        {/* Documents Grid - Handle structure variations */}
         <h2 className="text-lg font-bold text-gray-800 mb-4">Dokumen Persyaratan</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <DocumentCard title="KTP" url={provider.documents?.ktpUrl} />
-          <DocumentCard title="Selfie dengan KTP" url={provider.documents?.selfieKtpUrl} />
-          <DocumentCard title="SKCK" url={provider.documents?.skckUrl} />
-          <DocumentCard title="Sertifikat Keahlian" url={provider.documents?.certificateUrl} />
+          <DocumentCard title="KTP" url={provider.documents?.ktpUrl || provider.documents?.['ktp']?.url} />
+          <DocumentCard title="Selfie dengan KTP" url={provider.documents?.selfieKtpUrl || provider.documents?.['selfieKtp']?.url} />
+          <DocumentCard title="SKCK" url={provider.documents?.skckUrl || provider.documents?.['skck']?.url} />
+          <DocumentCard title="Sertifikat" url={provider.documents?.certificateUrl || provider.documents?.['certificate']?.url} />
         </div>
 
         {/* Additional Info */}
