@@ -1,8 +1,7 @@
-// src/pages/providers/ProviderList.jsx
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { providerService } from '../../services/providerService';
-import { Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import toast, { Toaster } from 'react-hot-toast';
@@ -12,14 +11,21 @@ export default function ProviderList() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, pending, verified, rejected, suspended
 
+  // Fetch ulang data setiap kali filter berubah
   useEffect(() => {
     fetchProviders();
-  }, []);
+  }, [filter]);
 
   const fetchProviders = async () => {
+    setLoading(true);
     try {
-      // Limit diperbesar agar bisa memuat lebih banyak data sekaligus
-      const res = await providerService.getAll({ limit: 100 });
+      // Mengirim parameter status ke backend agar backend yang melakukan filtering
+      const params = {
+        limit: 100,
+        status: filter // Mengirim 'all', 'pending', 'verified', dst.
+      };
+
+      const res = await providerService.getAll(params);
       setProviders(res.data);
     } catch (error) {
       toast.error('Gagal memuat data mitra');
@@ -37,12 +43,6 @@ export default function ProviderList() {
     const baseUrl = apiUrl.replace('/api', '');
     return `${baseUrl}${path}`;
   };
-
-  // Filter Client-side
-  const filteredProviders = providers.filter(p => {
-    if (filter === 'all') return true;
-    return p.verificationStatus === filter;
-  });
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -72,7 +72,7 @@ export default function ProviderList() {
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-800">Manajemen Mitra</h1>
         
-        {/* Update Filter Buttons: Menambahkan Rejected & Suspended */}
+        {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2">
            {['all', 'pending', 'verified', 'rejected', 'suspended'].map((status) => (
              <button
@@ -104,14 +104,14 @@ export default function ProviderList() {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr><td colSpan="5" className="p-8 text-center text-gray-500">Memuat data...</td></tr>
-              ) : filteredProviders.length === 0 ? (
+              ) : providers.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="p-8 text-center text-gray-500">
                     {filter === 'all' ? 'Belum ada data mitra.' : `Tidak ada mitra dengan status "${filter}".`}
                   </td>
                 </tr>
               ) : (
-                filteredProviders.map((provider) => (
+                providers.map((provider) => (
                   <tr key={provider._id} className="hover:bg-gray-50 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
